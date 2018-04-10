@@ -11,7 +11,7 @@
 
 <body> 
  	<canvas id = "renderCanvas"></canvas> 
- 	
+
  	<script> 
     var canvas, engine, scene, camera, ground;
   		document.addEventListener("DOMContentLoaded", function(){ 
@@ -62,13 +62,23 @@
 
       // var mat = createMat();
 
+
       var sphere = BABYLON.MeshBuilder.CreateSphere("sphere", {diameter : 2}, scene); //default sphere
       sphere.position = new BABYLON.Vector3(0,10,0);
-      sphere.physicsImpostor = new BABYLON.PhysicsImpostor(sphere, BABYLON.PhysicsImpostor.SphereImpostor, {mass:2, restitution:4.0, friction:0.2}, scene);
+      sphere.physicsImpostor = new BABYLON.PhysicsImpostor(sphere, BABYLON.PhysicsImpostor.SphereImpostor, {mass:2, restitution:0.9, friction:0.2}, scene);
 
       sphere.physicsImpostor.registerOnPhysicsCollide(ground.physicsImpostor, function (main,collided) {
       		console.log(main.object.position);
       });
+
+      var myMaterial = new BABYLON.StandardMaterial("myMaterial", scene);
+      myMaterial.diffuseTexture = new BABYLON.Texture("basket.jpg", scene);
+      sphere.material = myMaterial;
+
+      var myMaterial2 = new BABYLON.StandardMaterial("myMaterial2",scene);
+      myMaterial2.diffuseTexture = new BABYLON.Texture("lapangan.png", scene);
+      ground.material = myMaterial2;
+
 
 
 
