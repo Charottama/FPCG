@@ -3,12 +3,11 @@
 <head> 
  	<meta charset="UTF-8"> 
  	<title>FPTest 1</title> 
- 	<script type="text/javascript" src="babylon.custom.js"></script> 
- 	<link rel="stylesheet" type="text/css" href="Asdos I.css">
-
- 	
+  <script type="text/javascript" src="babylon.custom.js"></script> 
+  <script src="https://cdn.babylonjs.com/babylon.js"></script>
+  <script src="https://preview.babylonjs.com/loaders/babylonjs.loaders.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="Asdos I.css">
 </head> 
-
 <body> 
  	<canvas id = "renderCanvas"></canvas> 
 
@@ -61,8 +60,7 @@
       var light = new BABYLON.HemisphericLight("hLight", new BABYLON.Vector3(0,8,0), scene); 
 
       // var mat = createMat();
-
-
+      
       var sphere = BABYLON.MeshBuilder.CreateSphere("sphere", {diameter : 2}, scene); //default sphere
       sphere.position = new BABYLON.Vector3(0,10,0);
       sphere.physicsImpostor = new BABYLON.PhysicsImpostor(sphere, BABYLON.PhysicsImpostor.SphereImpostor, {mass:2, restitution:0.9, friction:0.2}, scene);
@@ -72,22 +70,19 @@
       });
 
       var myMaterial = new BABYLON.StandardMaterial("myMaterial", scene);
-      myMaterial.diffuseTexture = new BABYLON.Texture("basket.jpg", scene);
+      myMaterial.diffuseTexture = new BABYLON.Texture("/FP/FPCG/basket.jpg", scene);
       sphere.material = myMaterial;
 
       var myMaterial2 = new BABYLON.StandardMaterial("myMaterial2",scene);
-      myMaterial2.diffuseTexture = new BABYLON.Texture("lapangan.png", scene);
+      myMaterial2.diffuseTexture = new BABYLON.Texture("/FP/FPCG/lapangan.png", scene);
       ground.material = myMaterial2;
-
-
-
 
       engine.runRenderLoop(function(){ 
         window.onkeydown = function(event) {
-
+            if (event.keyCode == 32) {
+              sphere.physicsImpostor.applyImpulse(new BABYLON.Vector3(10, 10, 0), sphere.getAbsolutePosition());
+            }
           }
-        
-
         scene.render(); 
          }); 
       }); 
