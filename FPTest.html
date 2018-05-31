@@ -3,7 +3,7 @@
 <head> 
  	<meta charset="UTF-8"> 
  	<title>FPTest 1</title> 
-  <script type="text/javascript" src="babylon.custom.js"></script> 
+  <script type="text/javascript" src="babylon.custom.js"></script>
   <script src="https://cdn.babylonjs.com/babylon.js"></script>
   <script src="https://preview.babylonjs.com/loaders/babylonjs.loaders.min.js"></script>
   <link rel="stylesheet" type="text/css" href="Asdos I.css">
@@ -40,17 +40,14 @@
    		// camera = new BABYLON.FreeCamera("camera", new BABYLON.Vector3(0,0,10),scene) 
    		// camera.setTarget(new BABYLON.Vector3(0,0,0)); 
    		// camera.attachControl(canvas); 
-      camera = new BABYLON.ArcRotateCamera("Camera", 0, 0 , 10, new BABYLON.Vector3(0, 0, 0),scene);
-
-      camera.setPosition(new BABYLON.Vector3(0, 5, 20));
-
-      camera.attachControl(canvas, true);
+      var camera = new BABYLON.ArcRotateCamera("Camera", 0, 0.8, 100, BABYLON.Vector3.Zero(), scene);
+      camera.attachControl(canvas, false);
 
       var mat = new BABYLON.StandardMaterial("material", scene);
 
       mat.diffuseColor = new BABYLON.Color3(1, 0, 0);
       mat.specularColor = new BABYLON.Color3(0, 1, 0);
-      mat.specularPower = 25
+      mat.specularPower = 25;
       // mat.diffuseTexture = new BABYLON.Texture("assets/grass.png", scene);
       // mat.specularTexture = new BABYLON.Texture("assets/doge.jpeg", scene);
       mat.ambientColor = new BABYLON.Color3(0, 23, 0, 98, 0, 53);
@@ -60,8 +57,8 @@
       var light = new BABYLON.HemisphericLight("hLight", new BABYLON.Vector3(0,8,0), scene); 
 
       // var mat = createMat();
-      
-      var sphere = BABYLON.MeshBuilder.CreateSphere("sphere", {diameter : 2}, scene); //default sphere
+
+      var sphere = BABYLON.MeshBuilder.CreateSphere("sphere", {diameter : 2}, scene);
       sphere.position = new BABYLON.Vector3(0,10,0);
       sphere.physicsImpostor = new BABYLON.PhysicsImpostor(sphere, BABYLON.PhysicsImpostor.SphereImpostor, {mass:2, restitution:0.9, friction:0.2}, scene);
 
@@ -69,20 +66,65 @@
       		console.log(main.object.position);
       });
 
-      var myMaterial = new BABYLON.StandardMaterial("myMaterial", scene);
-      myMaterial.diffuseTexture = new BABYLON.Texture("/FP/FPCG/basket.jpg", scene);
-      sphere.material = myMaterial;
+      var basketball = BABYLON.Mesh.CreateBox("basketball", 1.0, scene);
+      basketball.position = new BABYLON.Vector3(10, 0, 0);
+      basketball.scaling = new BABYLON.Vector3(1, 1, 1);
+      BABYLON.SceneLoader.ImportMesh("", "Materials/Design/", "basketball.obj", scene, function (newMeshes) {
+        for (i = 0; i < newMeshes.length; i++) {
+          newMeshes[i].parent = basketball;
+        }
+      });
 
-      var myMaterial2 = new BABYLON.StandardMaterial("myMaterial2",scene);
-      myMaterial2.diffuseTexture = new BABYLON.Texture("/FP/FPCG/lapangan.png", scene);
-      ground.material = myMaterial2;
+      var basketballcourt = BABYLON.Mesh.CreateBox("basketballcourt", 1.0, scene);
+      basketballcourt.position = new BABYLON.Vector3(0, 0, 0);
+      basketballcourt.scaling = new BABYLON.Vector3(1, 1, 1);
+      BABYLON.SceneLoader.ImportMesh("", "Materials/Design/", "basketballcourt.obj", scene, function (newMeshes) {
+        for (i = 0; i < newMeshes.length; i++) {
+          newMeshes[i].parent = basketballcourt;
+        }
+      });
+
+      var x = 0;
+      var y = 0;
+      var z = 0;
+      var interval = 0;
 
       engine.runRenderLoop(function(){ 
         window.onkeydown = function(event) {
-            if (event.keyCode == 32) {
-              sphere.physicsImpostor.applyImpulse(new BABYLON.Vector3(10, 10, 0), sphere.getAbsolutePosition());
-            }
+          if (event.keyCode == 32) {
+            y++;
+            console.log("space");
+            console.log(y);
           }
+          if (event.keyCode == 87) {
+            x++;
+            console.log("w");
+            console.log(x);
+          }
+          if (event.keyCode == 83) {
+            x--;
+            console.log("s");
+            console.log(x);
+          }
+          if (event.keyCode == 65)
+          {
+            z++;
+            console.log("a");
+            console.log(z);
+          }
+          if (event.keyCode == 68) {
+            z--;
+            console.log("d");
+            console.log(z);
+          }
+        }
+        sphere.physicsImpostor.applyImpulse(new BABYLON.Vector3(x, y, z), sphere.getAbsolutePosition());
+        var impulseStopper = setTimeout(function () {
+          x = 0;
+          y = 0;
+          z = 0;}, 3000);
+        var impulseRestarter = setTimeout(function () {
+          clearTimeout(impulseStopper) }, 4000);
         scene.render(); 
          }); 
       }); 
