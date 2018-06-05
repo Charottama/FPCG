@@ -29,102 +29,132 @@
 
    		scene.enablePhysics(gravity, physicsEngine);
 
-   		ground = new BABYLON.Mesh.CreateGround("ground", 100, 100, 1, scene);
-      //ground.material = terrain.material;
-      //ground.diffuseTexture = new BABYLON.Texture("basketball-court-vector.png")
-
-   		ground.physicsImpostor = new BABYLON.PhysicsImpostor(ground, BABYLON.PhysicsImpostor.BoxImpostor, {mass: 0, restitution: 0.2, friction: 0.2}, scene);
-
-
-   // Create FreeCamera 
-   		// camera = new BABYLON.FreeCamera("camera", new BABYLON.Vector3(0,0,10),scene) 
-   		// camera.setTarget(new BABYLON.Vector3(0,0,0)); 
-   		// camera.attachControl(canvas); 
       var camera = new BABYLON.ArcRotateCamera("Camera", 0, 0.8, 100, BABYLON.Vector3.Zero(), scene);
       camera.attachControl(canvas, false);
 
-      var mat = new BABYLON.StandardMaterial("material", scene);
+      var goalmat = new BABYLON.StandardMaterial("material", scene);
+      goalmat.diffuseColor = new BABYLON.Color3(0.41, 0.41, 0.41);
+      goalmat.specularColor = new BABYLON.Color3(0, 0, 0);
+      goalmat.specularPower = 25;
+      goalmat.ambientColor = new BABYLON.Color3(10, 10, 10, 10, 10, 10);
+      goalmat.alpha = 1;
 
-      mat.diffuseColor = new BABYLON.Color3(1, 0, 0);
-      mat.specularColor = new BABYLON.Color3(0, 1, 0);
-      mat.specularPower = 25;
-      // mat.diffuseTexture = new BABYLON.Texture("assets/grass.png", scene);
-      // mat.specularTexture = new BABYLON.Texture("assets/doge.jpeg", scene);
-      mat.ambientColor = new BABYLON.Color3(0, 23, 0, 98, 0, 53);
-      mat.alpha = 1;
+      var spheremat = new BABYLON.StandardMaterial("material", scene);
+      spheremat.diffuseColor = new BABYLON.Color3(0.41, 0.41, 0.41);
+      spheremat.specularColor = new BABYLON.Color3(0, 0, 0);
+      spheremat.specularPower = 25;
+      spheremat.ambientColor = new BABYLON.Color3(10, 10, 10, 10, 10, 10);
+      spheremat.alpha = 1;
 
-   // Create Light 
+      var cylindermat = new BABYLON.StandardMaterial("material", scene);
+      cylindermat.diffuseColor = new BABYLON.Color3(1, 0, 0);
+      cylindermat.specularColor = new BABYLON.Color3(0, 0, 0);
+      cylindermat.specularPower = 25;
+      cylindermat.ambientColor = new BABYLON.Color3(0, 23, 0, 98, 0, 53);
+      cylindermat.alpha = 1;
+
+      // Create Light 
       var light = new BABYLON.HemisphericLight("hLight", new BABYLON.Vector3(0,8,0), scene); 
 
-      // var mat = createMat();
+      ground = BABYLON.MeshBuilder.CreateBox("box", { height: 10, width: 100, depth: 100 }, scene);
+      ground.position = new BABYLON.Vector3(0,-5,0) 
+      ground.physicsImpostor = new BABYLON.PhysicsImpostor(ground, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0, restitution: 0.2, friction: 0.2 }, scene);
+
+      var x = Math.round((Math.random() * 30) + 10);
+      x *= Math.floor(Math.random() * 2) == 1 ? 1 : -1;
+      var z = Math.round((Math.random() * 30) + 10);
+      z *= Math.floor(Math.random() * 2) == 1 ? 1 : -1;
+
+      goal = new BABYLON.MeshBuilder.CreateBox("box", { height: 1, depth: 5, width: 5 }, scene);
+      goal.position = new BABYLON.Vector3(x, 0.1, z);
+      goal.physicsImpostor = new BABYLON.PhysicsImpostor(ground, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0, restitution: 0.2, friction: 0.2 }, scene);
+      goal.material = goalmat;
 
       var sphere = BABYLON.MeshBuilder.CreateSphere("sphere", {diameter : 2}, scene);
       sphere.position = new BABYLON.Vector3(0,10,0);
       sphere.physicsImpostor = new BABYLON.PhysicsImpostor(sphere, BABYLON.PhysicsImpostor.SphereImpostor, {mass:2, restitution:0.9, friction:0.2}, scene);
+      sphere.material = spheremat;
 
-      sphere.physicsImpostor.registerOnPhysicsCollide(ground.physicsImpostor, function (main,collided) {
-      		console.log(main.object.position);
-      });
+      var cylinder = [];
 
-      var basketball = BABYLON.Mesh.CreateBox("basketball", 1.0, scene);
-      basketball.position = new BABYLON.Vector3(10, 0, 0);
-      basketball.scaling = new BABYLON.Vector3(1, 1, 1);
-      BABYLON.SceneLoader.ImportMesh("", "Materials/Design/", "basketball.obj", scene, function (newMeshes) {
-        for (i = 0; i < newMeshes.length; i++) {
-          newMeshes[i].parent = basketball;
+      var numOfCylinder = Math.round(Math.floor((Math.random() * 60) + 20));
+
+      for(var i = 0; i <= numOfCylinder; i++)
+      {
+        var x = Math.round((Math.random() * 40) + 1);
+        x *= Math.floor(Math.random() * 2) == 1 ? 1 : -1;
+        var z = Math.round((Math.random() * 40) + 1);
+        z *= Math.floor(Math.random() * 2) == 1 ? 1 : -1;
+        cylinder[i] = BABYLON.MeshBuilder.CreateCylinder("cylinder", { diameter: 2, tessellation: 24, height: 10 }, scene);
+        cylinder[i].position = new BABYLON.Vector3(x, 5, z);
+        cylinder[i].physicsImpostor = new BABYLON.PhysicsImpostor(cylinder[i], BABYLON.PhysicsImpostor.CylinderImpostor, { mass: 2, restitution: 0.9, friction: 0.2 }, scene);
+        cylinder[i].material = cylindermat;
+        sphere.physicsImpostor.registerOnPhysicsCollide(cylinder[i].physicsImpostor, function () {
+          console.log("Hit");
+        })
+      }
+
+      var bTouched = false;
+
+      sphere.physicsImpostor.registerOnPhysicsCollide(goal.physicsImpostor, function () {
+        if (bTouched == false)
+        {
+          console.log("Win");
+          sphere.physicsImpostor.applyImpulse(new BABYLON.Vector3(0, 0, 0), sphere.getAbsolutePosition());
+          bTouched = true;
         }
-      });
+      })
 
-      var basketballcourt = BABYLON.Mesh.CreateBox("basketballcourt", 1.0, scene);
-      basketballcourt.position = new BABYLON.Vector3(0, 0, 0);
-      basketballcourt.scaling = new BABYLON.Vector3(1, 1, 1);
-      BABYLON.SceneLoader.ImportMesh("", "Materials/Design/", "basketballcourt.obj", scene, function (newMeshes) {
-        for (i = 0; i < newMeshes.length; i++) {
-          newMeshes[i].parent = basketballcourt;
-        }
-      });
+      // var basketball = BABYLON.Mesh.CreateBox("basketball", 1.0, scene);
+      // basketball.position = new BABYLON.Vector3(10, 0, 0);
+      // basketball.scaling = new BABYLON.Vector3(1, 1, 1);
+      // BABYLON.SceneLoader.ImportMesh("", "Materials/Design/", "basketball.obj", scene, function (newMeshes) {
+      //   for (i = 0; i < newMeshes.length; i++) {
+      //     newMeshes[i].parent = basketball;
+      //   }
+      // });
 
-      var x = 0;
-      var y = 0;
-      var z = 0;
+      // var basketballcourt = BABYLON.Mesh.CreateBox("basketballcourt", 1.0, scene);
+      // basketballcourt.position = new BABYLON.Vector3(0, 0, 0);
+      // basketballcourt.scaling = new BABYLON.Vector3(1, 1, 1);
+      // BABYLON.SceneLoader.ImportMesh("", "Materials/Design/", "basketballcourt.obj", scene, function (newMeshes) {
+      //   for (i = 0; i < newMeshes.length; i++) {
+      //     newMeshes[i].parent = basketballcourt;
+      //   }
+      // });
+
+      console.log(x + ", " + z + ", " + goal.getZ);
+
+      var x1 = 0;
+      var y1 = 0;
+      var z1 = 0;
       var interval = 0;
-
+      
       engine.runRenderLoop(function(){ 
         window.onkeydown = function(event) {
-          if (event.keyCode == 32) {
-            y++;
-            console.log("space");
-            console.log(y);
-          }
           if (event.keyCode == 87) {
-            x++;
+            x1++;
             console.log("w");
             console.log(x);
           }
           if (event.keyCode == 83) {
-            x--;
+            x1--;
             console.log("s");
             console.log(x);
           }
           if (event.keyCode == 65)
           {
-            z++;
+            z1++;
             console.log("a");
             console.log(z);
           }
           if (event.keyCode == 68) {
-            z--;
+            z1--;
             console.log("d");
             console.log(z);
           }
         }
-        sphere.physicsImpostor.applyImpulse(new BABYLON.Vector3(x, y, z), sphere.getAbsolutePosition());
-        var impulseStopper = setTimeout(function () {
-          x = 0;
-          y = 0;
-          z = 0;}, 3000);
-        var impulseRestarter = setTimeout(function () {
-          clearTimeout(impulseStopper) }, 4000);
+        sphere.physicsImpostor.applyImpulse(new BABYLON.Vector3(x1, y1, z1), sphere.getAbsolutePosition());
         scene.render(); 
          }); 
       }); 
